@@ -1,107 +1,60 @@
 using Microsoft.AspNetCore.Mvc;
+using restUdemy.Models;
+using restUdemy.Services;
 
 namespace restUdemy.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class CalculatorController : ControllerBase
+    [Route("api/[controller]")]
+    public class PersonController : ControllerBase
     {
 
-        private readonly ILogger<CalculatorController> _logger;
-        
+        private readonly ILogger<PersonController> _logger;
+        private IPersonService _personService;
 
-        public CalculatorController(ILogger<CalculatorController> logger)
+
+        public PersonController(ILogger<PersonController> logger, IPersonService personService)
         {
             _logger = logger;
+            _personService = personService;
         }
 
-        [HttpGet("sum/{firstNumber}/{secondNumber}")]
-        public IActionResult Sum(string firstNumber, string secondNumber)
+        [HttpGet]
+        public IActionResult Get()
         {
-            if(IsNumeric(firstNumber) && IsNumeric(secondNumber))
-            {
-                var result = ConvertToDecimal(firstNumber) + ConvertToDecimal(secondNumber);
-                return Ok(result.ToString());
-            }
-            return BadRequest("Invalid Input");
+            return Ok(_personService.GetAll());
         }
 
-        [HttpGet("subtract/{firstNumber}/{secondNumber}")]
-        public IActionResult Subtract(string firstNumber, string secondNumber)
+        [HttpGet("{ id }")]
+        public IActionResult Get(long id)
         {
-            if (IsNumeric(firstNumber) && IsNumeric(secondNumber))
-            {
-                var result = ConvertToDecimal(firstNumber) - ConvertToDecimal(secondNumber);
-                return Ok(result.ToString());
-            }
-            return BadRequest("Invalid Input");
+            var person = _personService.Get(id);
+            if(person == null) { return  NotFound(); }
+            return Ok(person); 
         }
 
-        [HttpGet("multiply/{firstNumber}/{secondNumber}")]
-        public IActionResult Multiply(string firstNumber, string secondNumber)
+        [HttpPost]
+        public IActionResult Create([FromBody] Person person)
         {
-            if (IsNumeric(firstNumber) && IsNumeric(secondNumber))
-            {
-                var result = ConvertToDecimal(firstNumber) * ConvertToDecimal(secondNumber);
-                return Ok(result.ToString());
-            }
-            return BadRequest("Invalid Input");
-        }
-
-        [HttpGet("division/{firstNumber}/{secondNumber}")]
-        public IActionResult Division(string firstNumber, string secondNumber)
-        {
-            if (IsNumeric(firstNumber) && IsNumeric(secondNumber))
-            {
-                var result = ConvertToDecimal(firstNumber) / ConvertToDecimal(secondNumber);
-                return Ok(result.ToString());
-            }
-            return BadRequest("Invalid Input");
-        }
-
-        [HttpGet("mean/{firstNumber}/{secondNumber}")]
-        public IActionResult Mean(string firstNumber, string secondNumber)
-        {
-            if (IsNumeric(firstNumber) && IsNumeric(secondNumber))
-            {
-                var result = (ConvertToDecimal(firstNumber) + ConvertToDecimal(secondNumber))/2;
-                return Ok(result.ToString());
-            }
-            return BadRequest("Invalid Input");
-        }
-
-        [HttpGet("square/{number}")]
-        public IActionResult Square(string number)
-        {
-            if (IsNumeric(number))
-            {
-                var result = Math.Sqrt((double)ConvertToDecimal(number));
-                return Ok(result.ToString());
-            }
-            return BadRequest("Invalid Input");
-        }
-
-        private decimal ConvertToDecimal(string strNumber)
-        {
-            decimal decimalValue;
-            if(decimal.TryParse(strNumber, out decimalValue))
-            {
-                return decimalValue;
-            }
-
-            return 0;
-        }
-
-        private bool IsNumeric(string strNumber)
-        {
-            double number;
-            bool isNumber = double.TryParse(
-                strNumber, 
-                System.Globalization.NumberStyles.Any, 
-                System.Globalization.NumberFormatInfo.InvariantInfo, 
-                out number);
-            return isNumber;
             
+            if (person == null) { return BadRequest(); }
+            return Ok(_personService.Create(person));
         }
+
+        [HttpPut]
+        public IActionResult Update([FromBody] Person person)
+        {
+
+            if (person == null) { return BadRequest(); }
+            return Ok(_personService.Update(person));
+        }
+
+        [HttpDelete("{ id }")]
+        public IActionResult Delete(long id)
+        {
+            _personService.Delete(id);
+            return NoContent();
+        }
+
     }
 }

@@ -4,20 +4,22 @@ namespace restUdemy.Services.Implementations
 {
     public class PersonServiceImplementation : IPersonService
     {
+        private volatile int count;
+
         public Person Create(Person person)
         {
             return person;
         }
 
-        public void Delete(Person person)
+        public void Delete(long id)
         {
-            
+                
         }
 
         public Person Get(long id)
         {
             return new Person { 
-                Id        = id ,
+                Id        = IncrementAndGet(),
                 FirstName = "Victor",
                 LastName  = "Luck",
                 Address   = "Rua 1",
@@ -27,12 +29,37 @@ namespace restUdemy.Services.Implementations
 
         public List<Person> GetAll()
         {
-            throw new NotImplementedException();
+            List<Person> persons = new List<Person>();
+            for (int i = 0; i < 8; i++)
+            {
+                Person person = MockPerson(i);
+                persons.Add(person); 
+            }
+            return persons;
         }
+
+        
 
         public Person Update(Person person)
         {
-            throw new NotImplementedException();
+            return person;
+        }
+
+        private Person MockPerson(int i)
+        {
+            return new Person
+            {
+                Id = IncrementAndGet(),
+                FirstName = "Victor - " + i,
+                LastName = "Luck - "+ i,
+                Address = "Rua 1 - "+ i,
+                Gender = "Male - " + i 
+            };
+        }
+
+        private long IncrementAndGet()
+        {
+            return Interlocked.Increment(ref count);
         }
     }
 }

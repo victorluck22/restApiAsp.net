@@ -6,7 +6,7 @@ namespace restUdemy.Services
     {
         Person Create(Person person);
         Person Update(Person person);
-        void Delete(Person person);
+        void Delete(long id);
         Person Get(long id);
         List<Person> GetAll();
 
